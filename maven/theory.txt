@@ -1,0 +1,469 @@
+Maven helps to create projects and a standard project structure
+It is a build tool
+It packages the project into deployable formats like JAR or WAR
+
+
+To create a simple java project write this in terminal
+
+mvn archetype:generate -DgroupId=com.telusko -DartifactId=telusko-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false
+
+
+
+==========================================
+MAVEN - COMPLETE THEORY NOTES
+==========================================
+
+1. WHAT IS MAVEN?
+------------------
+Maven is a build automation and project management tool used primarily for Java projects.
+It handles:
+- Building the project
+- Managing dependencies (JAR files)
+- Running tests
+- Packaging (JAR/WAR)
+- Project structure standardization
+
+Maven follows "Convention over Configuration" — meaning it expects a standard project
+structure so you don't have to configure everything manually.
+
+
+2. STANDARD MAVEN PROJECT STRUCTURE
+------------------------------------
+my-app/
+ ├── pom.xml
+ └── src/
+      ├── main/
+      │    ├── java/        (your source code)
+      │    └── resources/   (config files, properties)
+      └── test/
+           ├── java/         (test code)
+           └── resources/
+
+
+3. POM.XML (Project Object Model)
+------------------------------------
+pom.xml is the heart of a Maven project. It contains:
+- Project info (groupId, artifactId, version)
+- Dependencies
+- Plugins
+- Build configuration
+
+Example pom.xml:
+
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.telusko</groupId>
+    <artifactId>telusko-app</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.20</version>
+        </dependency>
+    </dependencies>
+</project>
+
+
+4. MAVEN TERMINOLOGIES (IMPORTANT)
+------------------------------------
+
+a) ARCHETYPE
+   - A template used to create a new Maven project.
+   - Example: maven-archetype-quickstart (basic Java app template)
+
+b) GROUP ID
+   - Uniquely identifies your project's organization/company.
+   - Reverse domain name convention.
+   - Example: com.telusko
+
+c) ARTIFACT ID
+   - The name of your project/jar (without version).
+   - Example: telusko-app
+
+d) VERSION
+   - Version of your project.
+   - Example: 1.0, 1.0-SNAPSHOT
+
+e) PACKAGING TYPE
+   - Defines output type: jar, war, pom, ear
+   - Default: jar
+
+
+5. MAVEN COMMAND TO CREATE PROJECT
+------------------------------------
+mvn archetype:generate -DgroupId=com.telusko -DartifactId=telusko-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.0 -DinteractiveMode=false
+
+Explanation:
+- archetype:generate       -> generate project from a template
+- -DgroupId                -> sets groupId
+- -DartifactId             -> sets artifactId (project name)
+- -DarchetypeArtifactId    -> which template to use
+- -DarchetypeVersion       -> version of the template
+- -DinteractiveMode=false  -> skips interactive prompts, uses values given directly
+
+
+6. MAVEN DEPENDENCIES
+------------------------------------
+Dependencies are external libraries your project needs (e.g., JUnit, Spring, Hibernate).
+
+Instead of manually downloading JARs, you just add them in pom.xml:
+
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+
+Maven automatically downloads the JAR and its required dependencies from a repository.
+
+Dependency Scopes:
+- compile  -> default, available everywhere (compile, test, runtime)
+- test     -> only available during testing (e.g., JUnit)
+- provided -> needed for compiling, but provided by runtime (e.g., servlet-api)
+- runtime  -> not needed for compilation, only at runtime
+
+
+7. MAVEN REPOSITORIES
+------------------------------------
+Repositories are storage locations for dependencies (JAR files, plugins).
+
+Types:
+a) Local Repository
+   - Located on your own machine.
+   - Path: ~/.m2/repository
+   - Once a dependency is downloaded, it's cached here for future use.
+
+b) Central Repository
+   - Default remote repository maintained by Maven community.
+   - URL: https://repo.maven.apache.org/maven2/
+   - Maven downloads dependencies from here if not in local repo.
+
+c) Remote Repository
+   - Custom/private repositories set up by organizations (e.g., Nexus, Artifactory).
+
+Flow: Maven checks Local Repo -> if not found, checks Central/Remote Repo -> downloads
+and stores in Local Repo.
+
+
+8. MAVEN GOALS (Build Lifecycle Phases)
+------------------------------------------
+A "goal" represents a specific task. Maven has a default build lifecycle with phases.
+Running a phase runs all previous phases too.
+
+Main Lifecycle Phases (in order):
+
+1) validate   -> validate the project is correct and all info is available
+2) compile    -> compiles the source code (src/main/java)
+3) test       -> runs unit tests using a testing framework (e.g., JUnit)
+4) package    -> packages compiled code into JAR/WAR
+5) verify     -> runs checks on results of integration tests
+6) install    -> installs the package into local repository (~/.m2)
+7) deploy     -> copies the final package to a remote repository for sharing
+
+Common Commands:
+- mvn compile   -> compiles source code
+- mvn test      -> runs tests
+- mvn package   -> creates JAR/WAR in target/ folder
+- mvn install   -> installs JAR into local repo so other projects can use it
+- mvn clean     -> deletes the target/ directory (removes old build files)
+- mvn clean install -> cleans old build then builds fresh and installs
+
+
+9. MAVEN PLUGINS
+------------------------------------
+Plugins add extra functionality to Maven (e.g., compiler plugin, jar plugin, surefire plugin).
+
+Example: Setting Java version using compiler plugin
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.10.1</version>
+            <configuration>
+                <source>17</source>
+                <target>17</target>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+
+10. QUICK SUMMARY TABLE
+------------------------------------
+Term          | Meaning
+--------------|---------------------------------------------
+Archetype     | Template for generating a project
+GroupId       | Organization/company identifier (com.telusko)
+ArtifactId    | Project name (telusko-app)
+Version       | Project version (1.0)
+Packaging     | Output type (jar/war)
+Dependency    | External library required by project
+Repository    | Storage location for dependencies (local/central/remote)
+Goal          | A task Maven performs (compile, test, package, install)
+Plugin        | Extra functionality plugged into Maven build process
+
+
+==========================================
+END OF NOTES
+==========================================
+
+
+
+
+
+
+
+==========================================
+MAVEN - IMPLEMENTATION / PRACTICAL USAGE NOTES
+==========================================
+
+This file covers HOW to actually use Maven step-by-step with real examples.
+
+
+1. CREATING A NEW MAVEN PROJECT
+------------------------------------
+Command:
+mvn archetype:generate -DgroupId=com.telusko -DartifactId=telusko-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.0 -DinteractiveMode=false
+
+What happens:
+- A folder "telusko-app" is created.
+- Inside it, pom.xml is generated.
+- src/main/java/com/telusko/App.java (sample class) is created.
+- src/test/java/com/telusko/AppTest.java (sample test) is created.
+
+After this, move into the project:
+cd telusko-app
+
+
+2. UNDERSTANDING THE GENERATED pom.xml
+------------------------------------
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.telusko</groupId>
+    <artifactId>telusko-app</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+</project>
+
+- groupId + artifactId + version = unique coordinates for THIS project.
+- packaging=jar means "mvn package" will produce telusko-app-1.0-SNAPSHOT.jar
+
+
+3. COMPILING THE PROJECT
+------------------------------------
+Command:
+mvn compile
+
+What happens:
+- Maven reads pom.xml
+- Compiles all .java files from src/main/java
+- Output goes to target/classes
+
+
+4. RUNNING TESTS
+------------------------------------
+Command:
+mvn test
+
+Example test file (src/test/java/com/telusko/AppTest.java):
+
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+public class AppTest {
+    @Test
+    public void testApp() {
+        assertTrue(true);
+    }
+}
+
+What happens:
+- Maven compiles main code
+- Compiles test code
+- Runs all test classes using Surefire plugin
+- Shows results: Tests run, Failures, Errors
+
+
+5. PACKAGING THE PROJECT
+------------------------------------
+Command:
+mvn package
+
+What happens:
+- Runs validate -> compile -> test -> package
+- Creates a .jar file inside target/ folder
+  e.g. target/telusko-app-1.0-SNAPSHOT.jar
+
+You can run this jar (if it has a main class configured):
+java -cp target/telusko-app-1.0-SNAPSHOT.jar com.telusko.App
+
+
+6. INSTALLING TO LOCAL REPOSITORY
+------------------------------------
+Command:
+mvn install
+
+What happens:
+- Builds and packages the project (same as "package")
+- Copies the JAR into ~/.m2/repository/com/telusko/telusko-app/1.0-SNAPSHOT/
+
+Why useful:
+- If another project on your machine wants to use telusko-app as a dependency,
+  it can now do so because it's available in the local repo.
+
+Example - using it in another project's pom.xml:
+
+<dependency>
+    <groupId>com.telusko</groupId>
+    <artifactId>telusko-app</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+
+
+7. CLEANING THE PROJECT
+------------------------------------
+Command:
+mvn clean
+
+What happens:
+- Deletes the target/ folder (removes compiled classes, jars, reports)
+
+Common combo:
+mvn clean install
+- First deletes old build artifacts
+- Then rebuilds everything fresh and installs to local repo
+
+
+8. ADDING A DEPENDENCY (Real Example)
+------------------------------------
+Suppose you want to use Gson (JSON library from Google) in your project.
+
+Step 1: Add to pom.xml inside <dependencies>:
+
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.10.1</version>
+</dependency>
+
+Step 2: Run:
+mvn compile
+
+What happens:
+- Maven checks local repo (~/.m2) for gson-2.10.1.jar
+- If not found, downloads it from Maven Central
+- Adds it to the classpath
+
+Step 3: Use it in your code:
+
+import com.google.gson.Gson;
+
+public class App {
+    public static void main(String[] args) {
+        Gson gson = new Gson();
+        String json = gson.toJson(new int[]{1, 2, 3});
+        System.out.println(json);  // prints [1,2,3]
+    }
+}
+
+
+9. ADDING A TEST DEPENDENCY (Real Example - JUnit)
+------------------------------------
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+
+- scope=test means this JAR is ONLY available during "mvn test", 
+  NOT included in final packaged jar.
+
+
+10. SETTING JAVA VERSION (Plugin Example)
+------------------------------------
+If your code uses Java 17 features but Maven defaults to an older version,
+add this plugin in pom.xml:
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.10.1</version>
+            <configuration>
+                <source>17</source>
+                <target>17</target>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+Then run:
+mvn clean compile
+- Now Maven will compile using Java 17 syntax rules.
+
+
+11. TYPICAL DAILY WORKFLOW (Practical Sequence)
+------------------------------------
+1) Write/modify code in src/main/java
+2) Write/modify tests in src/test/java
+3) Run: mvn clean test       -> check everything passes
+4) Run: mvn package          -> create jar
+5) Run: mvn install          -> make available to other local projects
+6) (Optional) mvn deploy     -> push to shared/remote repository for team
+
+
+12. EXAMPLE: FULL MINI PROJECT FLOW
+------------------------------------
+# Step 1 - Create project
+mvn archetype:generate -DgroupId=com.telusko -DartifactId=calc-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.0 -DinteractiveMode=false
+
+# Step 2 - Go into project
+cd calc-app
+
+# Step 3 - Edit App.java to add a method
+public class App {
+    public static int add(int a, int b) {
+        return a + b;
+    }
+    public static void main(String[] args) {
+        System.out.println(add(5, 3));
+    }
+}
+
+# Step 4 - Compile
+mvn compile
+
+# Step 5 - Test (write a test for add() in AppTest.java)
+mvn test
+
+# Step 6 - Package into jar
+mvn package
+
+# Step 7 - Run the jar
+java -cp target/calc-app-1.0-SNAPSHOT.jar com.telusko.App
+
+
+13. QUICK COMMAND REFERENCE
+------------------------------------
+mvn archetype:generate   -> create new project from template
+mvn compile              -> compile source code
+mvn test                 -> run unit tests
+mvn package              -> build jar/war
+mvn install              -> install jar to local repo (~/.m2)
+mvn clean                -> delete target/ folder
+mvn clean install        -> fresh rebuild + install
+mvn dependency:tree      -> show all dependencies (including transitive ones)
+
+
+==========================================
+END OF IMPLEMENTATION NOTES
+==========================================
