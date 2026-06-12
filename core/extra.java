@@ -67,6 +67,9 @@ class Programmer{
 
 record ProgrammerRecord(int id, String name){
     // This is a record class that automatically generates the constructor, getters, toString, equals, and hashCode methods based on the declared fields.
+    //By deault, the fields in a record class are final and cannot be modified after the object is created.
+    //They are also private and cannot be accessed directly from outside the class. Instead, you can use the automatically generated getter methods to access the field values.
+    
 }
 
 class Alien {
