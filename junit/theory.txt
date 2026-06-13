@@ -1,0 +1,470 @@
+================================================================
+                    JUNIT - COMPLETE NOTES
+================================================================
+
+1. INTRODUCTION TO JUNIT
+----------------------------------------------------------------
+JUnit is a unit testing framework for the Java programming
+language. It is open-source and used to write and run repeatable
+automated tests. JUnit enables Test-Driven Development (TDD).
+
+Key Features:
+- Annotations to identify test methods
+- Assertions to test expected results
+- Test runners to execute tests
+- Supports JUnit 4 (old) and JUnit 5 (new) architecture
+
+JUnit 5 (Jupiter) consists of three sub-projects:
+- JUnit Platform : foundation for launching testing frameworks
+- JUnit Jupiter   : new programming model + extension model
+- JUnit Vintage   : runs JUnit 3 & JUnit 4 tests on the platform
+
+
+2. WHY UNIT TESTING?
+----------------------------------------------------------------
+- Find bugs early in the development cycle
+- Facilitates change / refactoring with confidence
+- Simplifies integration (lower-level tests catch issues early)
+- Acts as documentation of code behavior
+- Reduces cost of bugs (cheaper to fix early than in prod)
+
+
+3. SETTING UP JUNIT
+----------------------------------------------------------------
+
+-- Maven Dependency (JUnit 5) --
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.0</version>
+    <scope>test</scope>
+</dependency>
+
+-- Maven Dependency (JUnit 4) --
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+
+-- Gradle Dependency --
+testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+
+4. BASIC STRUCTURE OF A TEST CLASS
+----------------------------------------------------------------
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CalculatorTest {
+
+    @Test
+    void testAddition() {
+        Calculator calc = new Calculator();
+        int result = calc.add(2, 3);
+        assertEquals(5, result);
+    }
+}
+
+Naming conventions:
+- Test class is usually named <ClassName>Test (e.g. CalculatorTest)
+- Test methods describe what they test, e.g. testAddition,
+  shouldReturnSumWhenTwoNumbersAdded
+
+
+5. JUNIT 5 ANNOTATIONS (CORE)
+----------------------------------------------------------------
+@Test
+    Marks a method as a test method.
+
+@BeforeEach
+    Runs before EACH test method (setup, e.g. initializing
+    objects). Replaces JUnit 4's @Before.
+
+@AfterEach
+    Runs after EACH test method (cleanup). Replaces @After.
+
+@BeforeAll
+    Runs ONCE before ALL test methods in the class.
+    Must be static. Replaces @BeforeClass.
+
+@AfterAll
+    Runs ONCE after ALL test methods in the class.
+    Must be static. Replaces @AfterClass.
+
+@Disabled
+    Disables/skips a test method or class.
+    Replaces JUnit 4's @Ignore.
+
+@DisplayName("text")
+    Gives a custom, readable name to a test class/method
+    (shown in test reports/IDE).
+
+@Nested
+    Allows creation of nested test classes — useful for
+    grouping related tests, especially with shared context.
+
+@RepeatedTest(n)
+    Runs the same test method n times.
+
+@ParameterizedTest
+    Runs the same test multiple times with different
+    arguments (used with @ValueSource, @CsvSource, etc.)
+
+@Tag("tagname")
+    Tags a test for filtering (e.g. run only "fast" tests).
+
+EXAMPLE WITH LIFECYCLE ANNOTATIONS:
+----------------------------------------------------------------
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CalculatorTest {
+
+    Calculator calc;
+
+    @BeforeAll
+    static void setupAll() {
+        System.out.println("Runs once before all tests");
+    }
+
+    @BeforeEach
+    void setup() {
+        calc = new Calculator();
+        System.out.println("Runs before each test");
+    }
+
+    @Test
+    @DisplayName("Addition should return correct sum")
+    void testAddition() {
+        assertEquals(5, calc.add(2, 3));
+    }
+
+    @Test
+    @Disabled("Not implemented yet")
+    void testDivision() {
+        assertEquals(2, calc.divide(10, 5));
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.out.println("Runs after each test");
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        System.out.println("Runs once after all tests");
+    }
+}
+
+
+6. ASSERTIONS (org.junit.jupiter.api.Assertions)
+----------------------------------------------------------------
+assertEquals(expected, actual)
+    Checks two values are equal.
+
+assertEquals(expected, actual, "message")
+    Same as above, with a custom failure message.
+
+assertNotEquals(unexpected, actual)
+    Checks two values are NOT equal.
+
+assertTrue(condition)
+    Checks that condition is true.
+
+assertFalse(condition)
+    Checks that condition is false.
+
+assertNull(object)
+    Checks that object is null.
+
+assertNotNull(object)
+    Checks that object is NOT null.
+
+assertSame(expected, actual)
+    Checks two object references point to the SAME object.
+
+assertNotSame(expected, actual)
+    Checks two object references do NOT point to the same object.
+
+assertArrayEquals(expectedArray, actualArray)
+    Checks two arrays are equal (element by element).
+
+assertThrows(Exception.class, executable)
+    Checks that a piece of code throws the expected exception.
+
+assertDoesNotThrow(executable)
+    Checks that a piece of code does NOT throw any exception.
+
+assertAll(executables...)
+    Groups multiple assertions; ALL are executed and ALL
+    failures are reported together (instead of stopping at
+    the first failure).
+
+assertTimeout(Duration, executable)
+    Checks that the executable completes within the given
+    time.
+
+EXAMPLES:
+----------------------------------------------------------------
+@Test
+void testAssertions() {
+    assertEquals(4, 2 + 2);
+    assertNotEquals(5, 2 + 2);
+    assertTrue(5 > 3);
+    assertFalse(3 > 5);
+
+    String s = null;
+    assertNull(s);
+
+    String name = "JUnit";
+    assertNotNull(name);
+
+    assertArrayEquals(new int[]{1,2,3}, new int[]{1,2,3});
+}
+
+@Test
+void testException() {
+    Calculator calc = new Calculator();
+    Exception exception = assertThrows(
+        ArithmeticException.class,
+        () -> calc.divide(10, 0)
+    );
+    assertEquals("/ by zero", exception.getMessage());
+}
+
+@Test
+void testAssertAll() {
+    Calculator calc = new Calculator();
+    assertAll("calculator",
+        () -> assertEquals(4, calc.add(2, 2)),
+        () -> assertEquals(0, calc.subtract(2, 2)),
+        () -> assertEquals(6, calc.multiply(2, 3))
+    );
+}
+
+
+7. PARAMETERIZED TESTS
+----------------------------------------------------------------
+Allow running the same test with different sets of data.
+
+Common sources:
+- @ValueSource(ints = {...}, strings = {...}, etc.)
+- @CsvSource({"a,b", "c,d"})
+- @MethodSource("methodName")
+- @EnumSource(EnumClass.class)
+- @NullSource / @EmptySource / @NullAndEmptySource
+
+EXAMPLES:
+----------------------------------------------------------------
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
+
+class ParamTest {
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3, 4, 5})
+    void testIsPositive(int number) {
+        assertTrue(number > 0);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "2,3,5",
+        "4,5,9",
+        "10,20,30"
+    })
+    void testAddWithCsv(int a, int b, int expected) {
+        Calculator calc = new Calculator();
+        assertEquals(expected, calc.add(a, b));
+    }
+
+    @ParameterizedTest
+    @MethodSource("numberProvider")
+    void testWithMethodSource(int input, int expected) {
+        assertEquals(expected, input * 2);
+    }
+
+    static Stream<org.junit.jupiter.params.provider.Arguments> numberProvider() {
+        return Stream.of(
+            org.junit.jupiter.params.provider.Arguments.of(1, 2),
+            org.junit.jupiter.params.provider.Arguments.of(2, 4),
+            org.junit.jupiter.params.provider.Arguments.of(3, 6)
+        );
+    }
+}
+
+
+8. NESTED TESTS
+----------------------------------------------------------------
+Used to group related tests together, often when testing
+multiple states/behaviors of the same object.
+
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class StackTest {
+
+    Stack<Integer> stack;
+
+    @Nested
+    class WhenStackIsEmpty {
+
+        @BeforeEach
+        void setup() {
+            stack = new Stack<>();
+        }
+
+        @Test
+        void isEmptyShouldReturnTrue() {
+            assertTrue(stack.isEmpty());
+        }
+
+        @Test
+        void popShouldThrowException() {
+            assertThrows(RuntimeException.class, () -> stack.pop());
+        }
+    }
+
+    @Nested
+    class WhenElementIsPushed {
+
+        @BeforeEach
+        void setup() {
+            stack = new Stack<>();
+            stack.push(10);
+        }
+
+        @Test
+        void isEmptyShouldReturnFalse() {
+            assertFalse(stack.isEmpty());
+        }
+
+        @Test
+        void peekShouldReturnPushedValue() {
+            assertEquals(10, stack.peek());
+        }
+    }
+}
+
+
+9. ASSUMPTIONS
+----------------------------------------------------------------
+Assumptions are used to run a test only if certain conditions
+hold. If the assumption fails, the test is SKIPPED (not failed).
+
+import static org.junit.jupiter.api.Assumptions.*;
+
+@Test
+void testOnlyOnDevEnvironment() {
+    assumeTrue("DEV".equals(System.getenv("ENV")));
+    // rest of test runs only if assumption is true
+    assertEquals(2, 1 + 1);
+}
+
+@Test
+void testWithAssumingThat() {
+    assumingThat(
+        "DEV".equals(System.getenv("ENV")),
+        () -> {
+            // runs only if condition is true
+            assertEquals(2, 1 + 1);
+        }
+    );
+    // code here runs regardless
+}
+
+
+10. EXCEPTION TESTING (DETAILED)
+----------------------------------------------------------------
+import static org.junit.jupiter.api.Assertions.*;
+
+class Calculator {
+    int divide(int a, int b) {
+        if (b == 0) throw new ArithmeticException("/ by zero");
+        return a / b;
+    }
+}
+
+class CalculatorTest {
+
+    @Test
+    void divideByZeroThrowsException() {
+        Calculator calc = new Calculator();
+
+        ArithmeticException exception = assertThrows(
+            ArithmeticException.class,
+            () -> calc.divide(10, 0)
+        );
+
+        assertEquals("/ by zero", exception.getMessage());
+    }
+}
+
+
+11. TIMEOUT TESTING
+----------------------------------------------------------------
+import java.time.Duration;
+import static org.junit.jupiter.api.Assertions.*;
+
+@Test
+void testTimeout() {
+    assertTimeout(Duration.ofSeconds(1), () -> {
+        // code that should complete within 1 second
+        Thread.sleep(500);
+    });
+}
+
+
+12. JUNIT 4 vs JUNIT 5 (ANNOTATION MAPPING)
+----------------------------------------------------------------
+JUnit 4              ->  JUnit 5
+---------------------------------------------
+@Before              ->  @BeforeEach
+@After               ->  @AfterEach
+@BeforeClass         ->  @BeforeAll (static)
+@AfterClass          ->  @AfterAll  (static)
+@Ignore              ->  @Disabled
+@Test(expected=...)  ->  assertThrows(...)
+@Test(timeout=...)   ->  assertTimeout(...)
+@RunWith             ->  @ExtendWith
+Categories           ->  @Tag
+
+JUnit 4 package: org.junit.*
+JUnit 5 package: org.junit.jupiter.api.*
+
+
+13. TEST-DRIVEN DEVELOPMENT (TDD) CYCLE
+----------------------------------------------------------------
+1. RED    -> Write a failing test first (for new feature)
+2. GREEN  -> Write minimum code to make the test pass
+3. REFACTOR -> Clean up code while keeping tests green
+Repeat for each new feature/requirement.
+
+
+14. BEST PRACTICES
+----------------------------------------------------------------
+- One assertion concept per test (use assertAll if grouping)
+- Test names should describe behavior, not implementation
+- Keep tests independent (no shared mutable state between tests)
+- Use @BeforeEach for setup instead of constructors
+- Avoid testing private methods directly; test via public API
+- Mock external dependencies (DB, network) using Mockito
+- Aim for fast, repeatable, isolated tests (F.I.R.S.T principle):
+    Fast, Independent, Repeatable, Self-validating, Timely
+
+
+15. RUNNING JUNIT TESTS
+----------------------------------------------------------------
+- Maven: mvn test
+- Gradle: gradle test
+- IDE (IntelliJ/Eclipse/VS Code): right-click -> Run Tests
+  or click the green "run" arrow next to @Test method
+
+================================================================
+                         END OF NOTES
+================================================================
